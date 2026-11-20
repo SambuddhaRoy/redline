@@ -1,0 +1,12 @@
+[
+  {"repo": "nvidia/NVIDIA-Nemotron-3-Nano-4B-FP8", "role": "coding", "note": "Best Hermes Agent coding model that fits 16 GB with 64K+ context: fast, tool calling, thinking. Tested on an RTX 5070 Ti."},
+  {"repo": "openai/gpt-oss-20b", "role": "reasoning", "note": "Strong reasoning and tool use. Needs about 15 GB, so it only fits when the GPU is otherwise idle."},
+  {"repo": "Qwen/Qwen3-4B-Instruct-2507", "role": "chat", "note": "Small general model with tool calling and a long context."},
+  {"repo": "nvidia/Qwen3-8B-NVFP4", "role": "chat", "note": "General chat and reasoning. Context tops out at 40K."},
+  {"repo": "nvidia/Qwen3-8B-FP8", "role": "chat", "note": "Same model at higher precision. Context tops out at 40K."},
+  {"repo": "nvidia/Qwen3-14B-NVFP4", "role": "chat", "note": "Largest dense Qwen3 that fits. Context tops out at 40K, too small for Hermes Agent."},
+  {"repo": "RedHatAI/gemma-4-12B-it-NVFP4", "role": "chat", "note": "Google Gemma 4 12B. Chat with tool calling."},
+  {"repo": "nvidia/Llama-3.1-8B-Instruct-NVFP4", "role": "chat", "note": "Llama 3.1 8B. Chat only: TensorRT-LLM has no Llama tool-call parser."},
+  {"repo": "tonythethompson/Hermes-4-14B-NVFP4", "role": "chat", "note": "Nous Hermes 4 14B, community NVFP4 build. Chat only: Hermes Agent says Hermes 4 isn't built for agent work."},
+  {"repo": "NousResearch/DeepHermes-3-Llama-3-3B-Preview", "role": "chat", "note": "Small Nous Hermes model with thinking mode."}
+]
