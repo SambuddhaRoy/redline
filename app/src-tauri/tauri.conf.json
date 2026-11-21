@@ -1,6 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Peregrine",
+  "productName": "Redline",
+  "mainBinaryName": "Redline",
   "version": "0.1.0",
   "identifier": "com.peregrine.app",
   "build": {
@@ -12,7 +13,7 @@
   "app": {
     "windows": [
       {
-        "title": "Peregrine",
+        "title": "Redline",
         "width": 1280,
         "height": 840,
         "minWidth": 900,

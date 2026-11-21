@@ -15,7 +15,7 @@
   ];
   // setup.sh steps in order, with roughly how many GB each downloads (drives the percentage).
   const STEPS = [
-    ['image', 'Ubuntu for Peregrine', 0.39], ['apt', 'System packages', 0.3], ['cuda', 'CUDA compiler', 0.3],
+    ['image', 'Ubuntu for the engine', 0.39], ['apt', 'System packages', 0.3], ['cuda', 'CUDA compiler', 0.3],
     ['python', 'Python', 0.05], ['torch', 'PyTorch', 0.56], ['tensorrt_llm', 'TensorRT-LLM and NVIDIA libraries', 4.94],
     ['gateway', 'Peregrine engine', 0.5], ['verify', 'Check the GPU', 0],
   ];
@@ -100,7 +100,7 @@
     error = '';
     if (wslMissing) {
       await installWsl(); // UAC prompt; Windows needs a restart afterwards
-      fail('WSL is turned on. Restart Windows, then open Peregrine again to finish setup.');
+      fail('WSL is turned on. Restart Windows, then open Redline again to finish setup.');
       return;
     }
     step = 'install';
@@ -112,8 +112,8 @@
         if (e.status === 'progress') imageBytes = e.bytes;
       });
       const failed = events.find((e) => e.status === 'error');
-      if (code === 2) return fail('Windows needs administrator access to turn on WSL. Run Peregrine as administrator once.');
-      if (code === 3) return fail('Restart Windows, then open Peregrine again to finish setup.');
+      if (code === 2) return fail('Windows needs administrator access to turn on WSL. Run Redline as administrator once.');
+      if (code === 3) return fail('Restart Windows, then open Redline again to finish setup.');
       if (code !== 0) {
         const where = STEPS.find(([k]) => k === failed?.step)?.[1] ?? failed?.step ?? 'an unknown step';
         return fail(failed?.message ?? `Setup stopped at “${where}”.`, failed?.log ?? '');
@@ -160,7 +160,7 @@
 </script>
 
 <header>
-  <span class="display word">Peregrine</span>
+  <span class="display word">Redline</span>
   {#if tabIndex >= 0}
     <ol class="segmented" aria-label="Setup steps">
       {#each TABS as [key, label], i}
@@ -183,9 +183,9 @@
     <div class="split">
       <div class="lead">
         <h1 class="display">{wslMissing ? 'Almost. WSL comes first.' : problems.length ? 'This PC can’t run it yet.' : 'Your GPU is ready for this.'}</h1>
-        <p class="big">TensorRT-LLM only runs on Linux, so Peregrine sets up its own small Ubuntu inside WSL. Your files and any Linux you already use stay untouched.</p>
+        <p class="big">TensorRT-LLM only runs on Linux, so Redline sets up its own small Ubuntu inside WSL. Your files and any Linux you already use stay untouched.</p>
         {#if wslMissing}
-          <p class="note">Windows needs WSL turned on first. Peregrine can do it for you: Windows asks for administrator access, then a restart. Setup picks up where it left off.</p>
+          <p class="note">Windows needs WSL turned on first. Redline can do it for you: Windows asks for administrator access, then a restart. Setup picks up where it left off.</p>
         {/if}
         {#each problems as p}<p class="note">{p}</p>{/each}
         <div class="row">

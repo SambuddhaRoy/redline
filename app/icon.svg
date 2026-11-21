@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Redline: a tachometer with the needle pinned in the red zone. Source for `npx tauri icon`. -->
+  <rect x="32" y="32" width="960" height="960" rx="224" fill="#0D0D0D"/>
+  <g fill="none" stroke-width="110" stroke-linecap="butt">
+    <!-- dial from 135° to 330° in lime, then a 6° gap, then the redline to 45° -->
+    <path d="M 285.7 786.3 A 320 320 0 1 1 789.1 400" stroke="#C6FF3D"/>
+    <path d="M 804.3 429.9 A 320 320 0 0 1 738.3 786.3" stroke="#FF3B1F"/>
+  </g>
+  <line x1="512" y1="560" x2="759.6" y2="525.2" stroke="#F4F3EE" stroke-width="56" stroke-linecap="round"/>
+  <circle cx="512" cy="560" r="64" fill="#F4F3EE"/>
+  <circle cx="512" cy="560" r="22" fill="#0D0D0D"/>
+</svg>

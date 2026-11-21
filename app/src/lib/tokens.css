@@ -1,10 +1,10 @@
-/* Peregrine tokens: the values on the canvas's Tokens board. Everything else uses these. */
+/* Redline tokens: the values on the canvas's Tokens board. Everything else uses these. */
 :root {
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
   --r-sm: 8px; --r-md: 16px; --r-pill: 999px;
   --control: 44px; --control-lg: 56px;
   --on-accent: #0d0d0d;
-  --accent: #c6ff3d; /* Peregrine lime until a model is picked; set per model family at runtime */
+  --accent: #c6ff3d; /* Redline lime until a model is picked; set per model family at runtime */
   --display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
   --text: 'Inter Variable', system-ui, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, monospace;

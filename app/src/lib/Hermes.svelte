@@ -29,7 +29,7 @@
 <section class:card={compact} class:compact>
   <h2 class="display">{compact ? 'Hermes Agent found' : 'Hermes Agent'}</h2>
   <p class="muted">
-    Connect it and Hermes can code with your local model. Peregrine adds itself as a provider named
+    Connect it and Hermes can code with your local model. Redline adds its Peregrine engine as a provider named
     <span class="mono">peregrine</span> and leaves your current settings alone. Models need tool calling and 64K of context.
   </p>
   {#if installs === null}

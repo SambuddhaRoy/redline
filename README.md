@@ -1,6 +1,6 @@
-# Peregrine
+# Redline (on the Peregrine engine)
 
-A Windows desktop app that runs LLMs on NVIDIA RTX GPUs with TensorRT-LLM. It installs everything itself, downloads models from Hugging Face the way LM Studio does, serves an OpenAI-compatible API, and registers itself with Hermes Agent.
+**Redline** is a Windows desktop app that runs LLMs on NVIDIA RTX GPUs with TensorRT-LLM. It installs everything itself, downloads models from Hugging Face the way LM Studio does, serves an OpenAI-compatible API, and registers itself with Hermes Agent.
 
 - `app/`: the desktop app (Tauri 2 + Svelte). `npm run tauri dev` to work on it, `npm run tauri build` for the installer (`app/src-tauri/target/release/bundle/nsis/`). `npm run dev` alone runs the UI in a browser against a running backend; add `?setup=check|install|load|ready` to see each setup step.
 - `backend/` and `bootstrap.ps1`: everything below. The installer ships both as resources.

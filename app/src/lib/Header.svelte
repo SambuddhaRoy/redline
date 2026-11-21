@@ -6,7 +6,7 @@
 </script>
 
 <header>
-  <span class="display word">Peregrine</span>
+  <span class="display word">Redline</span>
   <nav class="segmented" aria-label="Main">
     {#each screens as [key, label]}
       <button aria-current={app.screen === key ? 'page' : undefined} onclick={() => (app.screen = key)}>

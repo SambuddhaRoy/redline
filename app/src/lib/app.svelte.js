@@ -50,7 +50,7 @@ export async function waitOnline(ms = 120000) {
       await new Promise((r) => setTimeout(r, 1000));
     }
   }
-  throw new Error("The Peregrine engine didn't start. Try Repair in setup.");
+  throw new Error("The Peregrine engine didn't start. Close Redline and open it again; setup repairs what it can.");
 }
 
 export async function initThreads() {

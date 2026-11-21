@@ -1,4 +1,4 @@
-//! Peregrine's native shell. Everything model-related lives in the backend (HTTP on 127.0.0.1:47800);
+//! Redline's native shell (the app; the backend it drives is the Peregrine engine). Everything model-related lives in the backend (HTTP on 127.0.0.1:47800);
 //! this side only runs bootstrap.ps1, owns the backend process, and stores chat threads on disk.
 use std::io::{BufRead, BufReader};
 use std::os::windows::process::CommandExt;
@@ -138,7 +138,7 @@ pub fn run() {
         .manage(Backend::default())
         .invoke_handler(tauri::generate_handler![bootstrap, install_wsl, start_backend, load_threads, save_threads])
         .build(tauri::generate_context!())
-        .expect("error while building Peregrine")
+        .expect("error while building Redline")
         .run(|app, event| {
             // Closing the app frees the GPU: stop the distro (gateway + trtllm-serve), then our child.
             if let RunEvent::Exit = event {
