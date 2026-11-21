@@ -13,6 +13,7 @@ from contextlib import asynccontextmanager
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel
@@ -36,8 +37,12 @@ app = FastAPI(title="Peregrine", version=__version__, lifespan=lifespan)
 # Only local callers by Host header: blocks DNS-rebinding pages from driving the API through the browser.
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"])
 # Browsers attach Origin; Hermes, SDKs and curl don't. Without this any web page could fire no-cors POSTs
-# here (unload, model swaps, Hermes config rewrites). Add the desktop UI's origin once it exists.
-ALLOWED_ORIGINS = {f"http://127.0.0.1:{GATEWAY_PORT}", f"http://localhost:{GATEWAY_PORT}"}
+# here (unload, model swaps, Hermes config rewrites). The desktop app's webview is the only other origin.
+ALLOWED_ORIGINS = {
+    f"http://127.0.0.1:{GATEWAY_PORT}", f"http://localhost:{GATEWAY_PORT}",
+    "http://tauri.localhost", "https://tauri.localhost", "tauri://localhost",  # Tauri 2 on Windows / others
+    "http://localhost:1420", "http://127.0.0.1:1420",  # `tauri dev` (Vite)
+}
 
 
 @app.middleware("http")
@@ -46,6 +51,10 @@ async def same_origin_only(request: Request, call_next):
     if origin is not None and origin not in ALLOWED_ORIGINS:
         return JSONResponse({"error": {"message": "Cross-origin requests aren't allowed.", "code": 403}}, 403)
     return await call_next(request)
+
+
+# Added last so it runs first: answers the app's preflights and stamps CORS headers on every reply.
+app.add_middleware(CORSMiddleware, allow_origins=sorted(ALLOWED_ORIGINS), allow_methods=["*"], allow_headers=["*"])
 
 
 # ---------- OpenAI-compatible ----------

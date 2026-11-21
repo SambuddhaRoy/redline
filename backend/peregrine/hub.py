@@ -258,7 +258,8 @@ def fit(weights_bytes: int, config: dict, kv_bytes: int, budget_bytes: int) -> d
         default -= default % 1024
     return {"max_context": int(ctx), "default_context": int(default), "fits": default >= MIN_CONTEXT,
             "hermes_ready": default >= HERMES_MIN_CONTEXT,
-            "kv_bytes_per_token": full * kv_bytes, "weights_bytes": weights_bytes}
+            "kv_bytes_per_token": full * kv_bytes, "weights_bytes": weights_bytes,
+            "budget_bytes": budget_bytes, "overhead_bytes": OVERHEAD + slide * kv_bytes * window, "model_max": cap}
 
 
 def kv_bytes(launch: dict, kv_quant: str | None) -> int:
@@ -288,9 +289,12 @@ def remote(repo: str) -> dict:
             text = Path(hf_hub_download(repo, name, revision=info.sha)).read_text(encoding="utf-8")
             got[name] = text if name.endswith(".jinja") else json.loads(text)
     lic = next((t.split(":", 1)[1] for t in info.tags or [] if t.startswith("license:")), None)
+    # "base_model:quantized:Qwen/Qwen3-8B" on quantized repos: the key for the version picker
+    bases = [t.split(":")[-1] for t in info.tags or [] if t.startswith("base_model:")]
+    base = next((t.split(":")[-1] for t in info.tags or [] if t.startswith("base_model:quantized:")), bases[0] if bases else None)
     return {"repo": info.id, "sha": info.sha, "files": files, "config": got.get("config.json") or {},
             "hf_quant": got.get("hf_quant_config.json"), "template": _template(got), "gated": info.gated or False,
-            "license": lic, "downloads": info.downloads, "likes": info.likes}
+            "license": lic, "downloads": info.downloads, "likes": info.likes, "base": base}
 
 
 def _selected(files: dict) -> dict:
@@ -314,7 +318,7 @@ def inspect(repo: str, cc: float, budget_bytes: int) -> dict:
         verdict.update(ok=False, reason=KNOWN_BAD[r["repo"]])
     launch = launch_params(r["config"], r["template"], cc) if r["config"] else {}
     weights = sum(s for f, s in sel.items() if f.endswith(".safetensors"))
-    out = {k: r[k] for k in ("repo", "sha", "gated", "license", "downloads", "likes")}
+    out = {k: r[k] for k in ("repo", "sha", "gated", "license", "downloads", "likes", "base")}
     out.update(verdict, model_type=r["config"].get("model_type"), download_bytes=sum(sel.values()),
                weights_bytes=weights, launch=launch)
     if verdict["ok"]:

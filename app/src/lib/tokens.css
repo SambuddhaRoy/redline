@@ -1,0 +1,76 @@
+/* Peregrine tokens: the values on the canvas's Tokens board. Everything else uses these. */
+:root {
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+  --r-sm: 8px; --r-md: 16px; --r-pill: 999px;
+  --control: 44px; --control-lg: 56px;
+  --on-accent: #0d0d0d;
+  --accent: #c6ff3d; /* Peregrine lime until a model is picked; set per model family at runtime */
+  --display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --text: 'Inter Variable', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+:root, :root[data-theme='light'] {
+  --bg: #fafaf7; --surface: #ffffff; --surface-2: #ecebe6; --ink: #0d0d0d; --muted: #6b6962;
+  --line: #0d0d0d; --line-soft: #dad8d0; --code-bg: #0d0d0d; --code-ink: #f4f3ee; --strip-bg: #0d0d0d; --strip-ink: #f4f3ee;
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  --bg: #0e0e0d; --surface: #1a1a18; --surface-2: #242422; --ink: #f4f3ee; --muted: #a3a199;
+  --line: #f4f3ee; --line-soft: #33332f; --code-bg: #1a1a18; --code-ink: #f4f3ee; --strip-bg: #1a1a18; --strip-ink: #f4f3ee;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    --bg: #0e0e0d; --surface: #1a1a18; --surface-2: #242422; --ink: #f4f3ee; --muted: #a3a199;
+    --line: #f4f3ee; --line-soft: #33332f; --code-bg: #1a1a18; --code-ink: #f4f3ee; --strip-bg: #1a1a18; --strip-ink: #f4f3ee;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--text); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Shared controls */
+.pill {
+  height: var(--control); padding: 0 var(--sp-4); border-radius: var(--r-pill); border: 1.5px solid var(--line);
+  background: transparent; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex;
+  align-items: center; gap: var(--sp-2); white-space: nowrap; text-decoration: none;
+}
+.pill.primary { border-color: transparent; background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.pill.quiet { border-color: var(--line-soft); font-weight: 500; }
+.pill:disabled { opacity: 0.45; cursor: default; }
+.segmented { display: flex; align-items: center; gap: var(--sp-1); background: var(--surface-2); border-radius: var(--r-pill); padding: var(--sp-1); }
+.segmented button {
+  height: var(--control); padding: 0 var(--sp-4); border: none; border-radius: var(--r-pill); background: transparent;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+}
+.segmented button[aria-pressed='true'], .segmented button[aria-current='page'] { background: var(--surface); font-weight: 700; }
+.highlight {
+  background: var(--accent); color: var(--on-accent); padding: 0 var(--sp-2); border-radius: var(--r-sm);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone; /* each wrapped line gets its own box */
+}
+.display { font-family: var(--display); font-weight: 800; letter-spacing: -0.035em; }
+.mono { font-family: var(--mono); }
+pre, code, .mono { font-variant-ligatures: none; } /* show code exactly as written: no -> arrows or == joins */
+.muted { color: var(--muted); }
+.card { background: var(--surface); border-radius: var(--r-md); box-shadow: 0 0 0 1px var(--line-soft); }
+.bar { display: block; height: 8px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--ink); }
+
+/* Rendered answers (markdown.js output) */
+.prose { font-size: 17px; line-height: 1.65; }
+.prose > * { margin: 0 0 var(--sp-4); }
+.prose > :last-child { margin-bottom: 0; }
+.prose pre {
+  padding: var(--sp-5); border-radius: var(--r-md); background: var(--code-bg); color: var(--code-ink);
+  border: 1px solid var(--line-soft); font: 14px/1.65 var(--mono); overflow-x: auto;
+}
+.prose code { font-family: var(--mono); font-size: 0.9em; background: var(--surface-2); padding: 1px var(--sp-1); border-radius: 4px; }
+.prose pre code { background: none; padding: 0; font-size: inherit; }
+.prose h1, .prose h2, .prose h3 { font-family: var(--display); font-weight: 700; line-height: 1.2; }
+.prose ul, .prose ol { padding-left: var(--sp-5); }

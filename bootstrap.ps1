@@ -13,7 +13,8 @@ Exit codes: 0 ok, 1 error, 2 needs administrator, 3 reboot required.
 #>
 param(
   [Parameter(Position = 0)][ValidateSet('check', 'install', 'sync', 'start', 'stop', 'uninstall')][string]$Command = 'check',
-  [string]$Location = (Join-Path $env:LOCALAPPDATA 'Peregrine'),
+  # Not %LOCALAPPDATA%\Peregrine: that's where the app installer puts the app, and uninstalling it would take the distro along.
+  [string]$Location = (Join-Path $env:LOCALAPPDATA 'PeregrineData'),
   [switch]$Yes
 )
 $ErrorActionPreference = 'Stop'
