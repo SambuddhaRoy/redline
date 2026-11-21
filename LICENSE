@@ -1,0 +1,25 @@
+Redline and the Peregrine engine
+Copyright (c) 2026 Sam Roy (github.com/SambuddhaRoy). All rights reserved.
+
+This source code is published so people can read it. No license to it is granted.
+
+You may not copy, modify, merge, publish, distribute, sublicense, sell, or otherwise
+use this software or any part of it, in source or compiled form, or create works based
+on it, without prior written permission from the copyright holder.
+
+The one exception: you may download the official release builds published in this
+repository's Releases page and run them on your own computer for personal use.
+
+GitHub's Terms of Service let GitHub users view and fork public repositories on
+GitHub. No permission is granted beyond what those terms require: a fork may not be
+used, built, run, modified or redistributed.
+
+Third-party software that Redline downloads or bundles (for example TensorRT-LLM,
+PyTorch, Hugging Face libraries, model weights and the bundled fonts) is covered by
+its own license, not this one.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR ITS USE.
