@@ -2,7 +2,7 @@
   import { fly, slide } from 'svelte/transition';
   import { backOut, cubicOut } from 'svelte/easing';
   import { app, newThread } from './app.svelte.js';
-  import { api, accentOf, familyName, gb, kTokens, setAccent } from './api.js';
+  import { api, familyColor, familyName, gb, kTokens, setAccent } from './api.js';
   import { render } from './markdown.js';
   import Avatar from './Avatar.svelte';
 
@@ -209,7 +209,8 @@
   <section class="list" aria-label="Models">
     <div class="top">
       <div class="title">
-        <h1 class="display">Models</h1>
+        <span class="eyebrow">{library.length ? `${library.length} on this pc` : 'nothing downloaded yet'}</span>
+        <h1 class="display">models</h1>
         {#if gpu?.name}
           <p class="muted">{gpu.name.replace('NVIDIA GeForce ', '')} · {gb(gpu.total_mib * 2 ** 20)}. {gb(gpu.used_mib * 2 ** 20)} in use right now{engine?.model ? ', including the loaded model' : ''}.</p>
         {/if}
@@ -221,9 +222,9 @@
       </form>
     </div>
 
-    <div class="tabs" role="tablist" aria-label="Which models">
-      {#each [['picks', 'Picked for your GPU'], ['pc', `On this PC (${library.length})`], ['search', results ? `Search: ${query}` : 'Search']] as [key, label]}
-        <button role="tab" class="pill" class:quiet={tab !== key} class:active={tab === key} aria-selected={tab === key} onclick={() => (tab = key)}>{label}</button>
+    <div class="tabs segmented" role="tablist" aria-label="Which models">
+      {#each [['picks', 'picked for your gpu'], ['pc', 'on this pc'], ['search', results ? `“${query}”` : 'search']] as [key, label]}
+        <button role="tab" aria-selected={tab === key} onclick={() => (tab = key)}>{label}</button>
       {/each}
     </div>
 
@@ -242,10 +243,10 @@
         <button class="model card" class:selected={c.repo === selRepo} aria-pressed={c.repo === selRepo}
           in:fly={{ y: 24, delay: Math.min(i, 12) * 35, duration: 550, easing: backOut }}
           onclick={(e) => select(c.repo, !!e.target.closest('.thumb'))}>
-          <span class="band" class:faded={c.faded} style="background: {accentOf(c.repo)}">
-            <span class="thumb" title="Strengths and benchmarks"><Avatar repo={c.repo} size={32} /></span>
-            <span class="fam">{familyName(c.repo)}</span>
-            <span class="display quant">{c.quant}</span>
+          <span class="band" class:faded={c.faded}>
+            <span class="thumb" title="Strengths and benchmarks"><Avatar repo={c.repo} size={36} /></span>
+            <span class="eyebrow fam">{familyName(c.repo).toLowerCase()}</span>
+            <span class="quant" style="color: {familyColor(c.repo)}">{c.quant.toLowerCase()}</span>
           </span>
           <span class="body">
             <span class="name">{c.repo.split('/').pop()}</span>
@@ -283,13 +284,13 @@
       <div class="card hint"><p class="muted">{error || 'Reading the model’s config from Hugging Face…'}</p></div>
     {:else}
       <div class="card panel">
-        <div class="head" style="background: {accentOf(detail.repo)}">
+        <div class="head">
           <button class="head-thumb" onclick={() => (aboutOpen = !aboutOpen)} aria-expanded={aboutOpen} aria-label="Strengths and benchmarks">
             <Avatar repo={detail.repo} size={56} />
           </button>
-          <span class="fam">{familyName(detail.repo)} · {d.c.quant}</span>
+          <span class="eyebrow">{familyName(detail.repo).toLowerCase()} · {d.c.quant.toLowerCase()}</span>
           <h2 class="display">{detail.repo.split('/').pop()}</h2>
-          <span class="num repo">{detail.repo}</span>
+          <span class="eyebrow repo">{detail.repo}</span>
         </div>
         <div class="inner">
           {#if !d.c.runnable}
@@ -416,21 +417,19 @@
   .list { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-5); }
   .top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--sp-4); }
   .title { display: flex; flex-direction: column; gap: var(--sp-2); }
-  h1 { margin: 0; font-size: 64px; line-height: 0.95; }
+  h1 { margin: 0; font-size: clamp(72px, 9vw, 128px); }
   .title p { margin: 0; }
   .search {
     flex: 1 1 280px; max-width: 400px; display: flex; align-items: center; gap: var(--sp-2);
-    background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r-pill); padding: 0 var(--sp-1) 0 var(--sp-4);
+    background: var(--surface); border-radius: var(--r); padding: 0 var(--sp-4); color: var(--ink-2);
   }
   .search input { flex: 1; min-width: 0; height: var(--control); border: none; outline: none; background: transparent; }
   .tabs { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
-  .tabs .active { background: var(--ink); color: var(--bg); font-weight: 700; }
+  .tabs button { font-size: 22px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--sp-4); }
   .model { display: flex; flex-direction: column; padding: 0; border: none; overflow: hidden; text-align: left; cursor: pointer; }
-  .model.selected { box-shadow: 0 0 0 2px var(--line); }
-  .band {
-    display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); color: var(--on-accent);
-  }
+  .model.selected { background: var(--surface-2); box-shadow: inset 0 0 0 2px var(--accent); }
+  .band { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-4) var(--sp-4) 0; }
   .band .quant { margin-left: auto; }
   .thumb { display: flex; border-radius: var(--r-sm); transition: transform 0.45s var(--spring); }
   .thumb:hover { transform: scale(1.15) rotate(-4deg); }
@@ -442,7 +441,7 @@
   .about { display: flex; flex-direction: column; border-top: 1px solid var(--line-soft); padding-top: var(--sp-3); }
   .about-toggle {
     display: flex; justify-content: space-between; align-items: center; min-height: var(--control); padding: 0;
-    border: none; background: none; font-weight: 700; font-size: 15px; cursor: pointer; text-align: left;
+    border: none; background: none; font-weight: 300; font-size: 20px; cursor: pointer; text-align: left;
   }
   .chev { transition: transform 0.45s var(--spring); }
   .chev.open { transform: rotate(180deg); }
@@ -452,49 +451,49 @@
   .plain ul { margin: var(--sp-2) 0 0; padding-left: var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-1); font-size: 14px; line-height: 1.45; }
   .evals { width: 100%; border-collapse: collapse; font-size: 14px; }
   .evals td { padding: var(--sp-2) 0; border-bottom: 1px solid var(--line-soft); }
-  .evals .score { text-align: right; font-weight: 700; }
+  .evals .score { text-align: right; font-weight: 500; color: var(--accent); }
+  /* Verza's voice: actions and states in lowercase */
+  .status, .badges span, .row :global(.pill), .about-toggle, .hf :global(.pill), .variants .vs { text-transform: lowercase; }
   .card-table { font-size: 13px; overflow-wrap: normal; }
   .card-table :global(th), .card-table :global(td) { white-space: nowrap; padding: var(--sp-2); }
   .hf { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); padding-top: var(--sp-3); border-top: 1px solid var(--line-soft); }
   .token { display: flex; gap: var(--sp-2); }
-  .token input {
-    height: var(--control); width: 220px; padding: 0 var(--sp-4); border-radius: var(--r-pill);
-    border: 1.5px solid var(--line-soft); background: var(--surface); outline: none;
-  }
+  .token input { height: var(--control); width: 240px; padding: 0 var(--sp-4); border-radius: var(--r); border: 0; background: var(--surface); outline: none; }
   .band.faded { opacity: 0.45; }
-  .fam { font-size: 13px; font-weight: 600; }
-  .quant { font-size: 28px; letter-spacing: -0.02em; }
+  .fam { font-size: 13px; }
+  .quant { font-size: 22px; font-weight: 300; letter-spacing: -0.02em; transition: color 0.6s var(--ease); }
   .body { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-4); }
-  .name { font-family: var(--display); font-weight: 700; font-size: 19px; line-height: 1.15; overflow-wrap: anywhere; }
+  .name { font-weight: 400; font-size: 20px; letter-spacing: -0.01em; line-height: 1.2; overflow-wrap: anywhere; }
   .meta { font-size: 12px; overflow-wrap: anywhere; }
   .badges { display: flex; flex-wrap: wrap; gap: var(--sp-1); }
-  .badges span { font-size: 12px; font-weight: 600; padding: var(--sp-1) var(--sp-2); border-radius: var(--r-sm); border: 1px solid var(--line-soft); }
-  .status { font-size: 13px; font-weight: 600; padding-top: var(--sp-2); }
+  .badges { gap: var(--sp-1) var(--sp-3) !important; }
+  .badges span { font-size: 13px; color: var(--ink-2); }
+  .status { font-size: 16px; font-weight: 300; color: var(--accent); padding-top: var(--sp-2); }
 
   aside { flex: 1 1 380px; max-width: 460px; position: sticky; top: var(--sp-5); }
   .hint { padding: var(--sp-5); }
   .hint p { margin: 0; }
   .panel { overflow: hidden; }
-  .head { padding: var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-2); color: var(--on-accent); }
-  .head h2 { margin: 0; font-size: 36px; line-height: 1; letter-spacing: -0.03em; overflow-wrap: anywhere; }
+  .head { padding: var(--sp-5) var(--sp-5) 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .head h2 { margin: 0; font-size: 40px; line-height: 0.95; overflow-wrap: anywhere; }
   .repo { font-size: 12px; }
   .inner { padding: var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-5); }
   .reason { margin: 0; font-size: 16px; line-height: 1.55; }
   .ctx { display: flex; flex-direction: column; gap: var(--sp-3); }
   .ctx-top { display: flex; justify-content: space-between; align-items: baseline; }
   .ctx-top label { font-weight: 600; }
-  .ctx-value { font-size: 32px; letter-spacing: -0.02em; }
+  .ctx-value { font-size: 40px; color: var(--accent); }
   .slider { position: relative; padding-bottom: var(--sp-5); }
-  .slider input { width: 100%; margin: 0; accent-color: var(--ink); }
-  .marker { position: absolute; top: 24px; transform: translateX(-50%); font-size: 11px; white-space: nowrap; border-left: 1.5px solid var(--muted); padding-left: var(--sp-1); }
+  .slider input { width: 100%; margin: 0; accent-color: var(--accent); }
+  .marker { position: absolute; top: 24px; transform: translateX(-50%); font-size: 11px; white-space: nowrap; border-left: 1px solid var(--muted); padding-left: var(--sp-1); }
   .mem { display: flex; flex-direction: column; gap: var(--sp-3); }
-  .membar { display: flex; height: 24px; border-radius: var(--r-sm); overflow: hidden; background: var(--surface-2); }
+  .membar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--surface-2); }
   .membar span { display: block; height: 100%; }
   .legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2) var(--sp-4); font-size: 13px; }
   .legend span { display: flex; align-items: center; gap: var(--sp-2); }
   .legend i { width: 12px; height: 12px; border-radius: 4px; flex: none; }
   .legend b { margin-left: auto; font-weight: 500; }
-  .verdict { margin: 0; font-weight: 600; }
+  .verdict { margin: 0; font-size: 18px; font-weight: 300; }
   .small { margin: 0; font-size: 14px; }
   .warn { margin: 0; font-size: 13px; line-height: 1.5; padding: var(--sp-3); border-radius: var(--r-sm); background: var(--surface-2); }
   .row { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
@@ -502,9 +501,10 @@
   .variants h3 { margin: 0 0 var(--sp-1); font-size: 15px; }
   .variants button {
     display: flex; align-items: center; gap: var(--sp-3); min-height: var(--control); padding: var(--sp-2) var(--sp-3);
-    border-radius: var(--r-sm); border: none; background: var(--surface-2); text-align: left; cursor: pointer;
+    border-radius: var(--r-sm); background: var(--surface-2); text-align: left; transition: background-color 0.2s;
   }
-  .vq { font-size: 12px; font-weight: 700; min-width: 64px; }
+  .variants button:hover { background: var(--line); }
+  .vq { font-size: 13px; font-weight: 500; min-width: 64px; }
   .vr { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .vs { font-size: 12px; }
 </style>

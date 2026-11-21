@@ -41,7 +41,7 @@
     60% { transform: rotate(-14deg); }
     100% { transform: rotate(-150deg); }
   }
-  .label { font-weight: 700; font-size: 15px; animation: breathe 1.6s ease-in-out infinite; }
+  .label { font-weight: 300; font-size: 20px; color: var(--accent); animation: breathe 1.6s ease-in-out infinite; }
   @keyframes breathe { 50% { opacity: 0.55; } }
   .clock { font-size: 13px; }
   .peek { min-width: 0; font-size: 13px; font-style: italic; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }

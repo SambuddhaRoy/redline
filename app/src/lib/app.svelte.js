@@ -1,5 +1,5 @@
 // App-wide state: which screen, theme, live backend status, chat threads.
-import { api } from './api.js';
+import { api, refreshAccent } from './api.js';
 import { loadThreads, saveThreads } from './shell.js';
 
 const savedTheme = () => {
@@ -20,6 +20,7 @@ export function setTheme(t) {
   app.theme = t;
   document.documentElement.dataset.theme = t;
   try { localStorage.setItem('theme', t); } catch {}
+  refreshAccent(); // the same model reads differently on black and on white
 }
 
 let timer;

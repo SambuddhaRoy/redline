@@ -96,8 +96,31 @@ export function familyOf(repo = '') {
 }
 export const accentOf = (repo) => FAMILY[familyOf(repo)]?.[0] ?? BRAND;
 export const familyName = (repo) => FAMILY[familyOf(repo)]?.[1] ?? 'Model';
+// The accent is also text, so like Verza's "the cover picks the colour" it's nudged in lightness until it reads
+// at 4.5:1 against the page: lime stays lime on black and turns olive on white.
+const toRgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+const lum = (rgb) => rgb.map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)).reduce((a, c, i) => a + c * [0.2126, 0.7152, 0.0722][i], 0);
+const contrast = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+function readable(hex, light) {
+  const bg = light ? [1, 1, 1] : [0, 0, 0];
+  let rgb = toRgb(hex);
+  for (let i = 0; i < 30 && contrast(rgb, bg) < 4.5; i++) rgb = rgb.map((c) => (light ? c * 0.92 : c + (1 - c) * 0.08));
+  return '#' + rgb.map((c) => Math.round(c * 255).toString(16).padStart(2, '0')).join('');
+}
+const isLight = () => {
+  const t = document.documentElement.dataset.theme;
+  return t === 'light' || (t === 'system' && matchMedia('(prefers-color-scheme: light)').matches);
+};
+let accentRepo = '';
 /** The page accent follows the model in focus: the chat's model, the library's selection. */
-export const setAccent = (repo) => document.documentElement.style.setProperty('--accent', accentOf(repo ?? ''));
+export function setAccent(repo) {
+  accentRepo = repo ?? '';
+  document.documentElement.style.setProperty('--accent', readable(accentOf(accentRepo), isLight()));
+}
+export const refreshAccent = () => setAccent(accentRepo);
+/** A model family's color, adjusted to read as text on the current page. */
+export const familyColor = (repo) => readable(accentOf(repo ?? ''), isLight());
+if (typeof window !== 'undefined') matchMedia('(prefers-color-scheme: light)').addEventListener('change', refreshAccent);
 
 export const gb = (bytes) => (bytes / 2 ** 30).toFixed(1) + ' GB'; // GiB, as Windows counts
 export const kTokens = (n) => Math.round(n / 1024) + 'K';

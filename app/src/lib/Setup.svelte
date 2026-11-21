@@ -23,7 +23,7 @@
   const IMAGE_BYTES = 388975696;
   // The first cold load on an RTX 5070 Ti took 111 s; phases from its startup log, rounded.
   const PHASES = [['Start the engine', 13], ['Read the weights', 6], ['Compile kernels for your GPU', 79], ['Reserve memory and open the API', 13]];
-  const TABS = [['check', 'Check'], ['install', 'Install'], ['load', 'First load'], ['ready', 'Ready']];
+  const TABS = [['check', 'check'], ['install', 'install'], ['load', 'first load'], ['ready', 'ready']];
 
   let step = $state('boot'); // boot | check | install | load | ready | error
   let check = $state(null);
@@ -160,7 +160,7 @@
 </script>
 
 <header>
-  <span class="display word">Redline</span>
+  <span class="word">redline</span>
   {#if tabIndex >= 0}
     <ol class="segmented" aria-label="Setup steps">
       {#each TABS as [key, label], i}
@@ -169,7 +169,7 @@
     </ol>
   {/if}
   <div class="segmented" role="group" aria-label="Appearance">
-    {#each [['system', 'Auto'], ['light', 'Light'], ['dark', 'Dark']] as [key, label]}
+    {#each [['system', 'auto'], ['light', 'light'], ['dark', 'dark']] as [key, label]}
       <button aria-pressed={app.theme === key} onclick={() => setTheme(key)}>{label}</button>
     {/each}
   </div>
@@ -182,14 +182,14 @@
   {:else if step === 'check'}
     <div class="split">
       <div class="lead">
-        <h1 class="display">{wslMissing ? 'Almost. WSL comes first.' : problems.length ? 'This PC can’t run it yet.' : 'Your GPU is ready for this.'}</h1>
+        <h1 class="display">{wslMissing ? 'almost. wsl comes first.' : problems.length ? 'this pc can’t run it yet.' : 'your gpu is ready for this.'}</h1>
         <p class="big">TensorRT-LLM only runs on Linux, so Redline sets up its own small Ubuntu inside WSL. Your files and any Linux you already use stay untouched.</p>
         {#if wslMissing}
           <p class="note">Windows needs WSL turned on first. Redline can do it for you: Windows asks for administrator access, then a restart. Setup picks up where it left off.</p>
         {/if}
         {#each problems as p}<p class="note">{p}</p>{/each}
         <div class="row">
-          <button class="go display" disabled={problems.length > 0} onclick={install}>{wslMissing ? 'Turn on WSL' : 'Install · about 7 GB'}</button>
+          <button class="go display" disabled={problems.length > 0} onclick={install}>{wslMissing ? 'turn on wsl' : 'install · about 7 gb'}</button>
           <span class="muted small">{wslMissing ? 'Needs administrator access and a restart' : 'About 10 minutes on a 100 Mbit line'}</span>
         </div>
       </div>
@@ -227,7 +227,7 @@
         </ol>
       </div>
       <div class="lead">
-        <h2 class="display h2">While that runs, pick your first model.</h2>
+        <h2 class="display h2">while that runs, pick your first model.</h2>
         <p class="muted">It downloads as soon as the install finishes. You can add more from the library any time.</p>
         <div class="picks" role="radiogroup" aria-label="First model">
           {#each PICKS as p (p.repo)}
@@ -244,7 +244,7 @@
   {:else if step === 'load'}
     <div class="split">
       <div class="lead">
-        <h1 class="display">Warming up <span class="highlight">{model.name}</span></h1>
+        <h1 class="display">warming up <span class="highlight">{model.name.toLowerCase()}</span></h1>
         <p class="big">The first load compiles kernels for your exact GPU, so it takes about two minutes. Every load after that takes about one.</p>
         <label for="queued" class="bold">Type your first message now. It sends the moment the model is ready.</label>
         <textarea id="queued" rows="2" bind:value={queued} placeholder="Ask anything"></textarea>
@@ -273,20 +273,20 @@
   {:else if step === 'ready'}
     <div class="split">
       <div class="lead">
-        <h1 class="display huge">Ready.</h1>
+        <h1 class="display huge">ready.</h1>
         <p class="big"><span class="highlight">{model.name}</span> is loaded on your {check?.gpu?.name.replace('NVIDIA GeForce ', '') ?? 'GPU'}.</p>
-        <button class="go display" onclick={() => (app.screen = 'chat')}>Start chatting</button>
+        <button class="go display" onclick={() => (app.screen = 'chat')}>start chatting</button>
       </div>
       <div class="side"><Hermes compact /></div>
     </div>
 
   {:else if step === 'error'}
     <div class="lead narrow">
-      <h1 class="display">Setup stopped.</h1>
+      <h1 class="display">setup stopped.</h1>
       <p class="big">{error}</p>
       {#if errorLog}<p class="muted small">Details are in <span class="num">{errorLog}</span> inside the Peregrine WSL distro.</p>{/if}
       <div class="row">
-        <button class="go display" onclick={() => { step = 'boot'; retry(); }}>Try again</button>
+        <button class="go display" onclick={() => { step = 'boot'; retry(); }}>try again</button>
         <span class="muted small">Setup skips the parts that already finished.</span>
       </div>
     </div>
@@ -295,11 +295,11 @@
 
 <style>
   header { padding: var(--sp-5) var(--sp-6) 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-4); }
-  .word { font-size: 20px; letter-spacing: -0.02em; }
+  .word { font-size: 26px; font-weight: 400; }
   ol.segmented { margin: 0; list-style: none; }
-  .tab { height: var(--control); padding: 0 var(--sp-4); border-radius: var(--r-pill); display: flex; align-items: center; gap: var(--sp-2); font-size: 13px; color: var(--muted); }
+  .tab { min-height: var(--control); display: flex; align-items: center; gap: var(--sp-2); font-size: 18px; font-weight: 300; color: var(--muted); }
   .tab.past { color: var(--ink); }
-  .tab.on { background: var(--surface); color: var(--ink); font-weight: 700; }
+  .tab.on { color: var(--accent); }
   .tab .num { font-size: 12px; }
 
   main { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: var(--sp-7) var(--sp-6); }
@@ -312,11 +312,11 @@
   .big { margin: 0; font-size: 19px; line-height: 1.6; max-width: 600px; }
   .note { margin: 0; padding: var(--sp-4); border-radius: var(--r-md); background: var(--surface-2); max-width: 600px; line-height: 1.6; }
   .small { font-size: 14px; }
-  .bold { font-weight: 700; }
+  .bold { font-weight: 500; }
   .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
   .go {
-    height: var(--control-lg); padding: 0 var(--sp-6); border-radius: var(--r-pill); border: none; cursor: pointer;
-    background: var(--accent); color: var(--on-accent); font-size: 18px;
+    min-height: var(--control-lg); padding: 0; border: none; cursor: pointer;
+    background: none; color: var(--accent); font-size: 32px; font-weight: 300; letter-spacing: -0.02em;
   }
   .go:disabled { opacity: 0.45; cursor: default; }
   .mark {
@@ -324,7 +324,7 @@
     font-size: 12px; font-weight: 700; background: var(--ink); color: var(--bg);
   }
   .mark.bad, .mark.now { background: var(--accent); color: var(--on-accent); }
-  .mark.todo { background: transparent; box-shadow: inset 0 0 0 1.5px var(--line-soft); }
+  .mark.todo { background: var(--surface-2); }
 
   .checks { flex: 1 1 360px; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-2); }
   .checks li { display: flex; align-items: center; gap: var(--sp-4); min-height: var(--control-lg); padding: var(--sp-2) var(--sp-4); }
@@ -344,10 +344,10 @@
   .pick.on { box-shadow: 0 0 0 2px var(--line); }
   .pick:disabled { cursor: default; }
   .dot { width: 16px; height: 16px; flex: none; border-radius: var(--r-pill); }
-  .display-sm { font-family: var(--display); font-size: 20px; }
+  .display-sm { font-size: 20px; font-weight: 400; letter-spacing: -0.01em; }
 
   textarea {
-    resize: none; padding: var(--sp-4) var(--sp-5); border: 1.5px solid var(--line); border-radius: var(--r-md);
+    resize: none; padding: var(--sp-4) var(--sp-5); border: 0; border-radius: var(--r);
     background: var(--surface); font-size: 18px; outline: none; max-width: 640px;
   }
   .timer { flex: 1 1 340px; display: flex; flex-direction: column; gap: var(--sp-4); }

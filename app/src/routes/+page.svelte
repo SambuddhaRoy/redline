@@ -1,6 +1,5 @@
 <script>
-  import '@fontsource-variable/bricolage-grotesque';
-  import '@fontsource-variable/schibsted-grotesk';
+  import '@fontsource-variable/inter';
   import '@fontsource/ibm-plex-mono/400.css';
   import '@fontsource/ibm-plex-mono/600.css';
   import 'katex/dist/katex.min.css';
@@ -69,10 +68,9 @@
   .screen { flex: 1; min-height: 0; }
   .screen.scroll { overflow-y: auto; }
   .crash {
-    position: fixed; left: var(--sp-4); right: var(--sp-4); bottom: var(--sp-4); display: flex; gap: var(--sp-4);
-    align-items: flex-start; padding: var(--sp-4); border-radius: var(--r-md); background: var(--ink); color: var(--bg); z-index: 10;
+    position: fixed; left: var(--sp-4); right: var(--sp-4); bottom: calc(var(--dock) + var(--sp-4)); display: flex; gap: var(--sp-4);
+    align-items: flex-start; padding: var(--sp-4); border-radius: var(--r); background: var(--surface); z-index: 10;
   }
   .crash pre { flex: 1; margin: 0; font-size: 12px; white-space: pre-wrap; max-height: 160px; overflow: auto; }
-  .crash .pill { border-color: var(--bg); }
-  .page { width: 100%; max-width: 860px; margin: 0 auto; padding: var(--sp-7) var(--sp-6); }
+  .page { width: 100%; max-width: 1240px; margin: 0 auto; padding: var(--sp-7) var(--pad); }
 </style>

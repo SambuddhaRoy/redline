@@ -32,7 +32,7 @@
 <style>
   .avatar {
     flex: none; display: grid; place-items: center; overflow: hidden; border-radius: var(--r-sm);
-    background: var(--surface); color: var(--ink); font-family: var(--display); font-weight: 800;
+    background: var(--surface); color: var(--ink); font-weight: 300;
     box-shadow: 0 0 0 2px rgb(0 0 0 / 0.12);
   }
   img { width: 100%; height: 100%; object-fit: cover; }

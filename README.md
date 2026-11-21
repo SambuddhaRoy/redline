@@ -90,6 +90,14 @@ or `/model custom:peregrine:<model id>` inside a session. Hermes Agent warns tha
 
 The other catalog entries pass the metadata checks but haven't been loaded yet.
 
+## Answer style
+
+Every model in Redline's chat answers under two built-in rules, sent as the system prompt (`app/src/lib/skills.js`): Unslop always (plain, specific writing with no chatbot tells) and Ponytail when the question is about code (the least code that correctly solves it). Hermes Agent keeps its own prompt.
+
+## Design
+
+Black canvas, ultralight lowercase Inter for display, text links instead of buttons, and one accent that the loaded model's family picks, adjusted to read at 4.5:1 on both themes. The visual language follows the Verza site.
+
 ## Releases and updates
 
 Redline updates itself from this repo's GitHub Releases. Each release carries the installer, its signature and a `latest.json`. The app checks a few seconds after it starts and shows an update button in the header. Updates must be signed with the Redline key (`%USERPROFILE%\.tauri\redline.key`, kept out of the repo), so nothing else can pose as one. When an update starts, the engine stops to free the GPU, and the new version copies its own backend into WSL on the next start.
