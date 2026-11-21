@@ -30,7 +30,7 @@
   <h2 class="display">{compact ? 'Hermes Agent found' : 'Hermes Agent'}</h2>
   <p class="muted">
     Connect it and Hermes can code with your local model. Redline adds its Peregrine engine as a provider named
-    <span class="mono">peregrine</span> and leaves your current settings alone. Models need tool calling and 64K of context.
+    <span class="num">peregrine</span> and leaves your current settings alone. Models need tool calling and 64K of context.
   </p>
   {#if installs === null}
     <p class="muted">Looking for Hermes installs…</p>
@@ -42,7 +42,7 @@
         <li>
           <span class="where">
             <b>{i.kind === 'wsl' ? `${i.where} (WSL)` : 'Windows'}</b>
-            <span class="mono muted">Hermes {i.version}</span>
+            <span class="num muted">Hermes {i.version}</span>
           </span>
           <span class="state" class:on={i.connected}>{i.connected ? 'Connected' : 'Not connected'}</span>
         </li>
@@ -54,7 +54,7 @@
       </button>
       {#if connected}<button class="pill" disabled={busy} onclick={() => run(api.hermesDisconnect)}>Disconnect</button>{/if}
     </div>
-    <code class="mono muted">hermes chat --provider peregrine</code>
+    <code class="num muted">hermes chat --provider peregrine</code>
   {/if}
   {#if error}<p class="error">{error}</p>{/if}
 </section>
@@ -71,7 +71,7 @@
     padding: var(--sp-2) var(--sp-4); border-radius: var(--r-md); background: var(--surface-2);
   }
   .where { display: flex; flex-direction: column; gap: var(--sp-1); }
-  .where .mono { font-size: 12px; }
+  .where .num { font-size: 12px; }
   .state { margin-left: auto; font-size: 13px; font-weight: 600; }
   .state.on { background: var(--accent); color: var(--on-accent); padding: var(--sp-1) var(--sp-3); border-radius: var(--r-sm); }
   .row { display: flex; flex-wrap: wrap; gap: var(--sp-2); }

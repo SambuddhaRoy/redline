@@ -107,6 +107,21 @@ fn start_backend(app: AppHandle, backend: State<Backend>) -> Result<(), String> 
     Ok(())
 }
 
+/// Stops the distro (gateway + trtllm-serve) and our child. Used on exit and before an update installs.
+fn stop(app: &AppHandle) {
+    let backend = app.state::<Backend>();
+    let child = backend.0.lock().unwrap().take();
+    if let Some(mut child) = child {
+        let _ = powershell(app, &["stop"]).status();
+        let _ = child.kill();
+    }
+}
+
+#[tauri::command]
+async fn stop_backend(app: AppHandle) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || stop(&app)).await.map_err(|e| e.to_string())
+}
+
 fn threads_file(app: &AppHandle) -> Result<PathBuf, String> {
     let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
     std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
@@ -135,18 +150,18 @@ fn save_threads(app: AppHandle, json: String) -> Result<(), String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(Backend::default())
-        .invoke_handler(tauri::generate_handler![bootstrap, install_wsl, start_backend, load_threads, save_threads])
+        .invoke_handler(tauri::generate_handler![
+            bootstrap, install_wsl, start_backend, stop_backend, load_threads, save_threads
+        ])
         .build(tauri::generate_context!())
         .expect("error while building Redline")
         .run(|app, event| {
-            // Closing the app frees the GPU: stop the distro (gateway + trtllm-serve), then our child.
+            // Closing the app frees the GPU.
             if let RunEvent::Exit = event {
-                let backend = app.state::<Backend>();
-                if let Some(mut child) = backend.0.lock().unwrap().take() {
-                    let _ = powershell(app, &["stop"]).status();
-                    let _ = child.kill();
-                }
+                stop(app);
             }
         });
 }

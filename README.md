@@ -89,3 +89,13 @@ or `/model custom:peregrine:<model id>` inside a session. Hermes Agent warns tha
 | AxionML/Qwen3.5-9B-NVFP4 | Fails: TensorRT-LLM's Qwen3.5 weight loader raises IndexError, same code in 1.4.0rc4 |
 
 The other catalog entries pass the metadata checks but haven't been loaded yet.
+
+## Releases and updates
+
+Redline updates itself from this repo's GitHub Releases. Each release carries the installer, its signature and a `latest.json`. The app checks a few seconds after it starts and shows an update button in the header. Updates must be signed with the Redline key (`%USERPROFILE%\.tauri\redline.key`, kept out of the repo), so nothing else can pose as one. When an update starts, the engine stops to free the GPU, and the new version copies its own backend into WSL on the next start.
+
+To ship one: bump `version` in `app/src-tauri/tauri.conf.json`, then run `.\release.ps1 -Notes "what changed"`.
+
+## License
+
+All rights reserved: see [LICENSE](LICENSE). The code is public to read. Using, copying or modifying it needs written permission; the official release builds may be run for personal use.

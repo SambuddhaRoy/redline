@@ -6,8 +6,12 @@
   --on-accent: #0d0d0d;
   --accent: #c6ff3d; /* Redline lime until a model is picked; set per model family at runtime */
   --display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
-  --text: 'Inter Variable', system-ui, sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Schibsted Grotesk: a newspaper grotesk with a point of view, instead of the default-everywhere Inter. */
+  --text: 'Schibsted Grotesk Variable', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace; /* code only */
+  /* Motion: springs settle with a little overshoot; everything else eases out fast. */
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 :root, :root[data-theme='light'] {
   --bg: #fafaf7; --surface: #ffffff; --surface-2: #ecebe6; --ink: #0d0d0d; --muted: #6b6962;
@@ -16,21 +20,22 @@
 }
 :root[data-theme='dark'] {
   --bg: #0e0e0d; --surface: #1a1a18; --surface-2: #242422; --ink: #f4f3ee; --muted: #a3a199;
-  --line: #f4f3ee; --line-soft: #33332f; --code-bg: #1a1a18; --code-ink: #f4f3ee; --strip-bg: #1a1a18; --strip-ink: #f4f3ee;
+  --line: #f4f3ee; --line-soft: #33332f; --code-bg: #151514; --code-ink: #f4f3ee; --strip-bg: #1a1a18; --strip-ink: #f4f3ee;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
   :root[data-theme='system'] {
     --bg: #0e0e0d; --surface: #1a1a18; --surface-2: #242422; --ink: #f4f3ee; --muted: #a3a199;
-    --line: #f4f3ee; --line-soft: #33332f; --code-bg: #1a1a18; --code-ink: #f4f3ee; --strip-bg: #1a1a18; --strip-ink: #f4f3ee;
+    --line: #f4f3ee; --line-soft: #33332f; --code-bg: #151514; --code-ink: #f4f3ee; --strip-bg: #1a1a18; --strip-ink: #f4f3ee;
     color-scheme: dark;
   }
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
 body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--text); -webkit-font-smoothing: antialiased; }
 button, input, select, textarea { font: inherit; color: inherit; }
+code, pre, kbd { font-family: var(--mono); font-variant-ligatures: none; } /* exactly as written: no -> arrows */
 a { color: var(--ink); }
 :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -40,37 +45,70 @@ a { color: var(--ink); }
   height: var(--control); padding: 0 var(--sp-4); border-radius: var(--r-pill); border: 1.5px solid var(--line);
   background: transparent; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex;
   align-items: center; gap: var(--sp-2); white-space: nowrap; text-decoration: none;
+  transition: transform 0.4s var(--spring), background-color 0.2s var(--ease), border-color 0.2s var(--ease);
 }
+.pill:hover:not(:disabled) { transform: translateY(-2px); }
+.pill:active:not(:disabled) { transform: scale(0.94); transition-duration: 0.08s; }
 .pill.primary { border-color: transparent; background: var(--accent); color: var(--on-accent); font-weight: 700; }
 .pill.quiet { border-color: var(--line-soft); font-weight: 500; }
 .pill:disabled { opacity: 0.45; cursor: default; }
 .segmented { display: flex; align-items: center; gap: var(--sp-1); background: var(--surface-2); border-radius: var(--r-pill); padding: var(--sp-1); }
 .segmented button {
   height: var(--control); padding: 0 var(--sp-4); border: none; border-radius: var(--r-pill); background: transparent;
-  font-size: 13px; font-weight: 500; cursor: pointer;
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: background-color 0.25s var(--ease), transform 0.4s var(--spring);
 }
+.segmented button:active { transform: scale(0.92); transition-duration: 0.08s; }
 .segmented button[aria-pressed='true'], .segmented button[aria-current='page'] { background: var(--surface); font-weight: 700; }
 .highlight {
   background: var(--accent); color: var(--on-accent); padding: 0 var(--sp-2); border-radius: var(--r-sm);
   -webkit-box-decoration-break: clone; box-decoration-break: clone; /* each wrapped line gets its own box */
+  transition: background-color 0.5s var(--ease);
 }
 .display { font-family: var(--display); font-weight: 800; letter-spacing: -0.035em; }
-.mono { font-family: var(--mono); }
-pre, code, .mono { font-variant-ligatures: none; } /* show code exactly as written: no -> arrows or == joins */
+.num { font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
 .muted { color: var(--muted); }
 .card { background: var(--surface); border-radius: var(--r-md); box-shadow: 0 0 0 1px var(--line-soft); }
 .bar { display: block; height: 8px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
-.bar > span { display: block; height: 100%; background: var(--ink); }
+.bar > span { display: block; height: 100%; background: var(--ink); transition: width 0.6s var(--spring); }
 
 /* Rendered answers (markdown.js output) */
-.prose { font-size: 17px; line-height: 1.65; }
+.prose { font-size: 17px; line-height: 1.65; overflow-wrap: anywhere; }
 .prose > * { margin: 0 0 var(--sp-4); }
 .prose > :last-child { margin-bottom: 0; }
-.prose pre {
-  padding: var(--sp-5); border-radius: var(--r-md); background: var(--code-bg); color: var(--code-ink);
-  border: 1px solid var(--line-soft); font: 14px/1.65 var(--mono); overflow-x: auto;
-}
-.prose code { font-family: var(--mono); font-size: 0.9em; background: var(--surface-2); padding: 1px var(--sp-1); border-radius: 4px; }
-.prose pre code { background: none; padding: 0; font-size: inherit; }
-.prose h1, .prose h2, .prose h3 { font-family: var(--display); font-weight: 700; line-height: 1.2; }
+.prose h1, .prose h2, .prose h3, .prose h4 { font-family: var(--display); font-weight: 700; line-height: 1.2; letter-spacing: -0.015em; }
+.prose h1 { font-size: 28px; } .prose h2 { font-size: 23px; } .prose h3 { font-size: 19px; }
 .prose ul, .prose ol { padding-left: var(--sp-5); }
+.prose li + li { margin-top: var(--sp-1); }
+.prose blockquote { margin-left: 0; padding-left: var(--sp-4); border-left: 3px solid var(--accent); color: var(--muted); }
+.prose hr { border: none; border-top: 1px solid var(--line-soft); }
+.prose a { text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.prose :not(pre) > code { font-size: 0.88em; background: var(--surface-2); padding: 1px var(--sp-1); border-radius: 4px; }
+.prose table { border-collapse: collapse; display: block; overflow-x: auto; font-variant-numeric: tabular-nums; font-size: 15px; }
+.prose th, .prose td { padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--line-soft); text-align: left; }
+.prose th { font-weight: 700; border-bottom-color: var(--line); }
+.prose .math { overflow-x: auto; padding: var(--sp-2) 0; }
+.prose .katex { font-size: 1.08em; }
+.prose figure.code { margin: 0 0 var(--sp-4); border-radius: var(--r-md); overflow: hidden; background: var(--code-bg); color: var(--code-ink); }
+.prose figure.code figcaption {
+  display: flex; justify-content: space-between; align-items: center; padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-4);
+  font-size: 12px; color: #a3a199; border-bottom: 1px solid #2a2a27;
+}
+.prose figure.code .copy {
+  height: 32px; padding: 0 var(--sp-3); border-radius: var(--r-pill); border: 1px solid #3a3a36; background: transparent;
+  color: #f4f3ee; font-size: 12px; cursor: pointer; transition: transform 0.4s var(--spring);
+}
+.prose figure.code .copy:active { transform: scale(0.9); }
+.prose figure.code pre { margin: 0; padding: var(--sp-4) var(--sp-5); overflow-x: auto; font-size: 14px; line-height: 1.65; }
+
+/* Code colors: picked for the always-dark code background, not a stock theme */
+.hljs-keyword, .hljs-built_in, .hljs-literal, .hljs-selector-tag { color: #ff8a65; }
+.hljs-string, .hljs-regexp, .hljs-attr, .hljs-symbol { color: #c6ff3d; }
+.hljs-number, .hljs-variable, .hljs-template-variable, .hljs-type { color: #ffc21a; }
+.hljs-title, .hljs-section, .hljs-function .hljs-title, .hljs-class .hljs-title { color: #5ac8fa; }
+.hljs-comment, .hljs-quote, .hljs-meta { color: #8a887f; font-style: italic; }
+.hljs-addition { color: #c6ff3d; } .hljs-deletion { color: #ff6b5b; }
+
+/* Motion off for people who ask for it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}

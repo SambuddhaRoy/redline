@@ -30,7 +30,7 @@
         <span class="dot" style="background: {accentOf(t.model ?? '')}" aria-hidden="true"></span>
         <button class="open" onclick={() => open(t.id)}>
           <span class="title">{t.title}</span>
-          <span class="mono muted meta">{t.model ?? 'no model'} · {Math.ceil(t.messages.length / 2)} turns · {when(t.updated)}</span>
+          <span class="num muted meta">{t.model ?? 'no model'} · {Math.ceil(t.messages.length / 2)} turns · {when(t.updated)}</span>
         </button>
         <button class="pill quiet" onclick={() => remove(t.id)} aria-label="Delete {t.title}">Delete</button>
       </li>

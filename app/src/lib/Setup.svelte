@@ -164,7 +164,7 @@
   {#if tabIndex >= 0}
     <ol class="segmented" aria-label="Setup steps">
       {#each TABS as [key, label], i}
-        <li><span class="tab" class:on={i === tabIndex} class:past={i < tabIndex} aria-current={i === tabIndex ? 'step' : undefined}><span class="mono">0{i + 1}</span>{label}</span></li>
+        <li><span class="tab" class:on={i === tabIndex} class:past={i < tabIndex} aria-current={i === tabIndex ? 'step' : undefined}><span class="num">0{i + 1}</span>{label}</span></li>
       {/each}
     </ol>
   {/if}
@@ -201,7 +201,7 @@
         ] as [label, value, good]}
           <li class="card">
             <span class="mark" class:bad={!good} aria-hidden="true">{good ? '✓' : '!'}</span>
-            <span class="what"><b>{label}</b><span class="mono muted">{value}</span></span>
+            <span class="what"><b>{label}</b><span class="num muted">{value}</span></span>
             <span class="verdict">{good ? 'Good' : 'Needed'}</span>
           </li>
         {/each}
@@ -221,7 +221,7 @@
             <li>
               <span class="mark" class:todo={!progress[key]} class:now={progress[key] === 'now'} aria-hidden="true">{progress[key] === 'done' ? '✓' : ''}</span>
               <span class:muted={!progress[key]} class:bold={progress[key] === 'now'}>{label}</span>
-              <span class="mono muted size">{size ? size.toFixed(1) + ' GB' : ''}</span>
+              <span class="num muted size">{size ? size.toFixed(1) + ' GB' : ''}</span>
             </li>
           {/each}
         </ol>
@@ -234,7 +234,7 @@
             <button class="card pick" class:on={p.repo === pick} role="radio" aria-checked={p.repo === pick} disabled={phase !== ''} onclick={() => (pick = p.repo)}>
               <span class="dot" style="background: {FAMILY[p.family][0]}" aria-hidden="true"></span>
               <span class="what"><b class="display-sm">{p.name}</b><span class="muted">{p.why}</span></span>
-              <span class="mono size">{p.size}</span>
+              <span class="num size">{p.size}</span>
             </button>
           {/each}
         </div>
@@ -261,12 +261,12 @@
             {@const start = PHASES.slice(0, i).reduce((a, p) => a + p[1], 0)}
             {@const f = Math.max(0, Math.min(1, (elapsed - start) / secs))}
             <li>
-              <span class="ph"><span class:bold={f > 0 && f < 1} class:muted={f === 0}>{name}</span><span class="mono muted">{f >= 1 ? secs + ' s' : 'about ' + secs + ' s'}</span></span>
+              <span class="ph"><span class:bold={f > 0 && f < 1} class:muted={f === 0}>{name}</span><span class="num muted">{f >= 1 ? secs + ' s' : 'about ' + secs + ' s'}</span></span>
               <span class="bar"><span style="width: {f * 100}%; background: {f < 1 ? 'var(--accent)' : 'var(--ink)'}"></span></span>
             </li>
           {/each}
         </ol>
-        <p class="mono muted log">{engine?.log_tail?.at(-1) ?? ''}</p>
+        <p class="num muted log">{engine?.log_tail?.at(-1) ?? ''}</p>
       </div>
     </div>
 
@@ -284,7 +284,7 @@
     <div class="lead narrow">
       <h1 class="display">Setup stopped.</h1>
       <p class="big">{error}</p>
-      {#if errorLog}<p class="muted small">Details are in <span class="mono">{errorLog}</span> inside the Peregrine WSL distro.</p>{/if}
+      {#if errorLog}<p class="muted small">Details are in <span class="num">{errorLog}</span> inside the Peregrine WSL distro.</p>{/if}
       <div class="row">
         <button class="go display" onclick={() => { step = 'boot'; retry(); }}>Try again</button>
         <span class="muted small">Setup skips the parts that already finished.</span>
@@ -300,7 +300,7 @@
   .tab { height: var(--control); padding: 0 var(--sp-4); border-radius: var(--r-pill); display: flex; align-items: center; gap: var(--sp-2); font-size: 13px; color: var(--muted); }
   .tab.past { color: var(--ink); }
   .tab.on { background: var(--surface); color: var(--ink); font-weight: 700; }
-  .tab .mono { font-size: 12px; }
+  .tab .num { font-size: 12px; }
 
   main { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: var(--sp-7) var(--sp-6); }
   .split { display: flex; flex-wrap: wrap; gap: var(--sp-7); }
@@ -329,7 +329,7 @@
   .checks { flex: 1 1 360px; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-2); }
   .checks li { display: flex; align-items: center; gap: var(--sp-4); min-height: var(--control-lg); padding: var(--sp-2) var(--sp-4); }
   .what { display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; text-align: left; }
-  .what .mono { font-size: 12px; }
+  .what .num { font-size: 12px; }
   .verdict { margin-left: auto; font-size: 13px; font-weight: 600; }
 
   .progress { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
@@ -356,7 +356,7 @@
   .phases { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-3); }
   .phases li { display: flex; flex-direction: column; gap: var(--sp-1); }
   .ph { display: flex; justify-content: space-between; gap: var(--sp-3); }
-  .ph .mono { font-size: 12px; }
+  .ph .num { font-size: 12px; }
   .log { margin: 0; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .side { flex: 1 1 360px; }
 </style>

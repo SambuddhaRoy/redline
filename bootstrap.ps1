@@ -132,6 +132,8 @@ switch ($Command) {
 
   'start' {
     if (Test-Backend) { Emit @{ step = 'start'; status = 'running'; url = "http://127.0.0.1:$Port" }; exit 0 }
+    # Copy the backend that shipped with this app version in first, so an app update updates the engine too.
+    Sync-Backend
     Emit @{ step = 'start'; status = 'start'; url = "http://127.0.0.1:$Port" }
     & wsl.exe -d $Distro -u root --exec /opt/peregrine/app/run.sh
     exit $LASTEXITCODE

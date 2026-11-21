@@ -13,6 +13,15 @@ export function bootstrap(command, onEvent) {
 }
 
 export const startBackend = () => (inApp ? invoke('start_backend') : Promise.resolve());
+export const stopBackend = () => (inApp ? invoke('stop_backend') : Promise.resolve());
+
+/** Links in answers open in the default browser: navigating the app's own webview would leave Redline. */
+export async function openExternal(url) {
+  if (!/^https?:\/\//i.test(url)) return;
+  if (!inApp) return void window.open(url, '_blank', 'noopener');
+  const { openUrl } = await import('@tauri-apps/plugin-opener');
+  await openUrl(url);
+}
 export const installWsl = () => invoke('install_wsl');
 
 export async function loadThreads() {

@@ -47,6 +47,8 @@ REASONING_PARSER = {
     "minimax_m2": "minimax_m2",
 }
 # Used only when tensorrt_llm isn't importable (tests on a dev box). The installed index wins.
+# "Mistral3" "ForConditionalGeneration" is split on purpose: as one 32-letter string, GitHub's secret
+# scanner takes it for a Mistral API key and blocks the push.
 FALLBACK_ARCHS = {
     "GptOssForCausalLM", "LlamaForCausalLM", "MistralForCausalLM", "Mistral3" "ForConditionalGeneration",
     "Qwen2ForCausalLM", "Qwen3ForCausalLM", "Qwen3MoeForCausalLM", "Qwen3NextForCausalLM", "Qwen3_5ForCausalLM",
@@ -324,6 +326,80 @@ def inspect(repo: str, cc: float, budget_bytes: int) -> dict:
     if verdict["ok"]:
         out["fit"] = fit(weights, r["config"], kv_bytes(launch, verdict["kv_quant"]), budget_bytes)
     return out
+
+
+# ---------- about a model: avatar, benchmarks ----------
+
+@lru_cache(maxsize=256)
+def avatar(owner: str) -> str | None:
+    """The org's (or user's) Hugging Face avatar URL."""
+    import httpx
+
+    for kind in ("organizations", "users"):
+        try:
+            r = httpx.get(f"https://huggingface.co/api/{kind}/{owner}/avatar", timeout=10)
+            if r.status_code == 200 and r.json().get("avatarUrl"):
+                return r.json()["avatarUrl"]
+        except (httpx.HTTPError, ValueError):
+            pass
+    return None
+
+
+BENCH_WORDS = re.compile(r"MMLU|GSM8K|HumanEval|MBPP|GPQA|AIME|LiveCodeBench|MATH|IFEval|Arena|SWE-?bench|BFCL|"
+                         r"HellaSwag|ARC|TruthfulQA|BBH|Codeforces|Accuracy|Benchmark", re.I)
+
+
+def _card_tables(repo: str, limit: int = 2) -> list[str]:
+    """Markdown tables from a model card that look like benchmark results, quoted as written."""
+    from huggingface_hub import hf_hub_download
+
+    try:
+        text = Path(hf_hub_download(repo, "README.md")).read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return []
+    tables, block = [], []
+    for line in text.splitlines() + [""]:
+        if line.lstrip().startswith("|"):
+            block.append(line.strip())
+            continue
+        if len(block) >= 3 and BENCH_WORDS.search("\n".join(block[:3])):
+            tables.append("\n".join(block[:16]))  # header + separator + up to 14 rows
+        block = []
+    return tables[:limit]
+
+
+@lru_cache(maxsize=256)
+def about(repo: str) -> dict:
+    """Benchmarks for a repo, falling back to its base model (quantized uploads rarely carry their own).
+    Only numbers Hugging Face publishes: structured evalResults first, then tables quoted from model cards."""
+    from huggingface_hub import HfApi
+
+    api = HfApi()
+    info = api.model_info(repo, expand=["evalResults", "baseModels"])
+    base = None
+    bm = getattr(info, "base_models", None) or {}
+    if isinstance(bm, dict) and bm.get("models"):
+        base = next((m["id"] for m in bm["models"] if m["id"] != repo), None)
+    evals, sources = [], []
+    for source in filter(None, (repo, base)):
+        data = info if source == repo else api.model_info(source, expand=["evalResults"])
+        for e in getattr(data, "eval_results", None) or []:  # huggingface_hub EvalResultEntry objects
+            value = getattr(e, "value", None)
+            if isinstance(value, (int, float)):
+                evals.append({"benchmark": getattr(e, "dataset_id", None) or "?", "task": getattr(e, "task_id", None),
+                              "value": value, "source": getattr(e, "source_name", None),
+                              "url": getattr(e, "source_url", None), "from": source})
+        if evals:
+            sources.append(source)
+            break
+    tables, table_from = [], None
+    for source in filter(None, (repo, base)):
+        tables = _card_tables(source)
+        if tables:
+            table_from = source
+            break
+    return {"repo": repo, "base": base, "avatar": avatar(repo.split("/")[0]), "evals": evals[:12],
+            "tables": tables, "tables_from": table_from}
 
 
 EXPAND = ["config", "safetensors", "gated", "downloads", "likes", "lastModified", "tags"]

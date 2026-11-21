@@ -1,5 +1,6 @@
 // HTTP client for the Peregrine gateway (backend/peregrine/api.py).
-export const BASE = 'http://127.0.0.1:47800';
+// VITE_API lets a dev build point at a test gateway; the app itself always uses 47800.
+export const BASE = import.meta.env.VITE_API || 'http://127.0.0.1:47800';
 
 async function req(path, opts = {}) {
   const r = await fetch(BASE + path, { ...opts, headers: { 'Content-Type': 'application/json', ...opts.headers } });
@@ -29,6 +30,11 @@ export const api = {
   deleteModel: (id) => req('/manage/library/' + q(id), { method: 'DELETE' }),
   load: (model, context) => post('/manage/load', { model, context }),
   unload: () => post('/manage/unload'),
+  about: (repo) => req('/manage/about?repo=' + q(repo)),
+  avatar: (owner) => req('/manage/avatar?owner=' + q(owner)),
+  hfAccount: () => req('/manage/hf/account'),
+  hfLogin: (token) => req('/manage/hf/token', { method: 'PUT', body: JSON.stringify({ token }) }),
+  hfLogout: () => req('/manage/hf/token', { method: 'DELETE' }),
   hermes: () => req('/manage/hermes'),
   hermesConnect: () => post('/manage/hermes/connect'),
   hermesDisconnect: () => post('/manage/hermes/disconnect'),

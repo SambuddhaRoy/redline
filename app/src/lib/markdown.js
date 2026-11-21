@@ -1,38 +1,63 @@
-// Small markdown renderer for model answers. It escapes ALL html first and only then adds tags, so model
-// output can never inject markup into the webview (which can call the native shell).
-// ponytail: fences, headings, lists, paragraphs, `code`, **bold**, *italic*. Tables and links stay plain text;
-// swap in a real parser plus a sanitizer if answers need them.
+// Model answers as rich text: GitHub-style markdown, LaTeX math (KaTeX), highlighted code with a copy
+// button. Everything goes through DOMPurify last: model output must never become live markup in a
+// webview that can call the native shell.
+import { Marked } from 'marked';
+import katex from 'katex';
+import hljs from 'highlight.js/lib/common';
+import powershell from 'highlight.js/lib/languages/powershell';
+import DOMPurify from 'dompurify';
+
+hljs.registerLanguage('powershell', powershell);
+
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-function inline(s) {
-  return s
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>');
+function tex(src, display) {
+  try {
+    return katex.renderToString(src, { displayMode: display, throwOnError: false, output: 'html' });
+  } catch {
+    return `<code>${esc(src)}</code>`;
+  }
 }
 
-export function render(text) {
-  const out = [];
-  const parts = esc(text).split(/^```[^\n]*\n?/m); // odd parts are code; an unclosed fence (mid-stream) still renders
-  parts.forEach((part, i) => {
-    if (i % 2) {
-      out.push('<pre><code>' + part.replace(/\n$/, '') + '</code></pre>');
-      return;
-    }
-    for (const block of part.split(/\n{2,}/)) {
-      const lines = block.split('\n').filter((l) => l.trim());
-      if (!lines.length) continue;
-      const h = lines[0].match(/^(#{1,3})\s+(.*)/);
-      if (h && lines.length === 1) {
-        out.push(`<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`);
-      } else if (lines.every((l) => /^\s*[-*]\s+/.test(l))) {
-        out.push('<ul>' + lines.map((l) => '<li>' + inline(l.replace(/^\s*[-*]\s+/, '')) + '</li>').join('') + '</ul>');
-      } else if (lines.every((l) => /^\s*\d+[.)]\s+/.test(l))) {
-        out.push('<ol>' + lines.map((l) => '<li>' + inline(l.replace(/^\s*\d+[.)]\s+/, '')) + '</li>').join('') + '</ol>');
-      } else {
-        out.push('<p>' + lines.map(inline).join('<br>') + '</p>');
-      }
-    }
-  });
-  return out.join('');
-}
+// $$…$$ and \[…\] blocks; $…$ and \(…\) inline. "$5 and $10" stays text: no space after the opening $,
+// and no digit right after the closing one.
+const math = {
+  extensions: [
+    {
+      name: 'blockMath', level: 'block',
+      start: (s) => { const i = s.search(/\$\$|\\\[/); return i < 0 ? undefined : i; },
+      tokenizer(src) {
+        const m = /^\$\$([\s\S]+?)\$\$|^\\\[([\s\S]+?)\\\]/.exec(src);
+        if (m) return { type: 'blockMath', raw: m[0], text: (m[1] ?? m[2]).trim() };
+      },
+      renderer: (t) => `<div class="math">${tex(t.text, true)}</div>`,
+    },
+    {
+      name: 'inlineMath', level: 'inline',
+      start: (s) => { const i = s.search(/\$|\\\(/); return i < 0 ? undefined : i; },
+      tokenizer(src) {
+        const m = /^\$(?!\s)((?:\\.|[^\\$\n])+?)\$(?!\d)|^\\\(([\s\S]+?)\\\)/.exec(src);
+        if (m) return { type: 'inlineMath', raw: m[0], text: m[1] ?? m[2] };
+      },
+      renderer: (t) => tex(t.text, false),
+    },
+  ],
+};
+
+const marked = new Marked({ gfm: true, breaks: true }, math, {
+  renderer: {
+    code({ text, lang }) {
+      const l = (lang || '').trim().split(/\s/)[0].toLowerCase();
+      const known = l && hljs.getLanguage(l);
+      const body = known ? hljs.highlight(text, { language: l, ignoreIllegals: true }).value : hljs.highlightAuto(text).value;
+      return `<figure class="code"><figcaption><span>${esc(known ? l : 'code')}</span>` +
+        `<button type="button" class="copy" data-copy="">Copy</button></figcaption>` +
+        `<pre><code class="hljs">${body}</code></pre></figure>`;
+    },
+  },
+});
+
+// KaTeX positions glyphs with inline style attributes, so those stay (they can't run code); style tags,
+// forms and anything scriptable are removed.
+export const render = (text) =>
+  DOMPurify.sanitize(marked.parse(text), { FORBID_TAGS: ['style', 'form', 'input', 'textarea', 'select'] });

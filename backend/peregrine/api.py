@@ -221,6 +221,21 @@ def inspect(repo: str):
         raise HTTPException(404, f"{repo} doesn't exist on Hugging Face (or is private).")
 
 
+@app.get("/manage/about")
+def about(repo: str):
+    from huggingface_hub.errors import RepositoryNotFoundError
+
+    try:
+        return hub.about(repo)
+    except RepositoryNotFoundError:
+        raise HTTPException(404, f"{repo} doesn't exist on Hugging Face (or is private).")
+
+
+@app.get("/manage/avatar")
+def avatar(owner: str):
+    return {"url": hub.avatar(owner)}
+
+
 @app.get("/manage/library")
 def library():
     g, b = _gpu_budget()
